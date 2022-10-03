@@ -18,6 +18,7 @@
 #include <net/ipv6.h>
 #include <net/dst.h>
 #include <net/netfilter/nf_conntrack.h>
+#include "rmnet_module.h"
 #include "rmnet_wlan.h"
 #include "rmnet_wlan_connection.h"
 #include "rmnet_wlan_stats.h"
@@ -288,7 +289,7 @@ DATARMNET00dcb79bc4)hrtimer_cancel(&DATARMNET63b1a086d5->DATARMNET9f31ce5d2d);}
 rcu_read_unlock();}static int DATARMNET81ab4de243(struct notifier_block*
 DATARMNET272c159b3c,unsigned long DATARMNET7f045a1e6e,void*data){struct 
 net_device*DATARMNET00dcb79bc4=netdev_notifier_info_to_dev(data);if(!
-DATARMNET00dcb79bc4||strncmp(DATARMNET00dcb79bc4->name,
+DATARMNET00dcb79bc4||DATARMNETaba2beb199(DATARMNET00dcb79bc4->name,
 "\x72\x5f\x72\x6d\x6e\x65\x74\x5f\x64\x61\x74\x61",(0xd19+238-0xdfb)))return 
 NOTIFY_DONE;switch(DATARMNET7f045a1e6e){case NETDEV_UNREGISTER:
 netdev_rx_handler_unregister(DATARMNET00dcb79bc4);DATARMNETbc6bd11f47(
@@ -329,11 +330,15 @@ IPPROTO_UDP){if(udp_hdr(DATARMNET543491eb0f)->source==DATARMNET3396919a68->
 DATARMNET08e913477e&&udp_hdr(DATARMNET543491eb0f)->dest==DATARMNET3396919a68->
 DATARMNETda7f7fa492)goto DATARMNET9573fcc9c6;}return;DATARMNET9573fcc9c6:
 DATARMNET543491eb0f->priority=2607612160;DATARMNET5ca94dbc3c(DATARMNETc2cade1d75
-);}void DATARMNET333c107558(void){rcu_assign_pointer(rmnet_wlan_ll_tuple_hook,
-DATARMNET6f73df41cd);}void DATARMNET4c08c7210c(void){rcu_assign_pointer(
-rmnet_wlan_ll_tuple_hook,NULL);synchronize_rcu();}int DATARMNET9f106ed933(void){
-int DATARMNET268a8314cf;DATARMNET268a8314cf=register_netdevice_notifier(&
-DATARMNET61d0113123);if(DATARMNET268a8314cf)pr_err(
+);}static const struct rmnet_module_hook_register_info DATARMNETd0b5ecd937={.
+hooknum=RMNET_MODULE_HOOK_WLAN_FLOW_MATCH,.func=DATARMNET6f73df41cd,};void 
+DATARMNET333c107558(void){rcu_assign_pointer(rmnet_wlan_ll_tuple_hook,
+DATARMNET6f73df41cd);rmnet_module_hook_register(&DATARMNETd0b5ecd937,
+(0xd26+209-0xdf6));}void DATARMNET4c08c7210c(void){rcu_assign_pointer(
+rmnet_wlan_ll_tuple_hook,NULL);rmnet_module_hook_unregister(&DATARMNETd0b5ecd937
+,(0xd26+209-0xdf6));}int DATARMNET9f106ed933(void){int DATARMNET268a8314cf;
+DATARMNET268a8314cf=register_netdevice_notifier(&DATARMNET61d0113123);if(
+DATARMNET268a8314cf)pr_err(
 "\x25\x73\x28\x29\x3a\x20\x6e\x6f\x74\x69\x66\x69\x65\x72\x20\x66\x61\x69\x6c\x65\x64" "\n"
 ,__func__);return DATARMNET268a8314cf;}int DATARMNETf56cbaa2b1(void){int 
 DATARMNET268a8314cf;DATARMNET268a8314cf=unregister_netdevice_notifier(&
