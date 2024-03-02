@@ -1,27 +1,31 @@
+ifeq ($(TARGET_DATARMNET_EXT_ENABLE), true)
 ifneq ($(TARGET_BOARD_AUTO),true)
 ifneq ($(TARGET_BOARD_PLATFORM),qssi)
 
-RMNET_WLAN_DLKM_PLATFORMS_LIST := lahaina
-RMNET_WLAN_DLKM_PLATFORMS_LIST += holi
-RMNET_WLAN_DLKM_PLATFORMS_LIST += taro
-RMNET_WLAN_DLKM_PLATFORMS_LIST += kalama
-RMNET_WLAN_DLKM_PLATFORMS_LIST += bengal
+RMNET_WLAN_DLKM_PLATFORMS_LIST := pineapple
+RMNET_WLAN_DLKM_PLATFORMS_LIST += blair
 RMNET_WLAN_DLKM_PLATFORMS_LIST += monaco
-RMNET_WLAN_DLKM_PLATFORMS_LIST += crow
+RMNET_WLAN_DLKM_PLATFORMS_LIST += pitti
 
 ifeq ($(call is-board-platform-in-list, $(RMNET_WLAN_DLKM_PLATFORMS_LIST)),true)
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
+
+#Enabling BAZEL
+LOCAL_MODULE_DDK_BUILD := true
 
 LOCAL_MODULE_PATH := $(KERNEL_MODULES_OUT)
 
 LOCAL_MODULE := rmnet_wlan.ko
 LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/**/*) $(wildcard $(LOCAL_PATH)/*)
 
+BOARD_OPENSOURCE_DIR ?= vendor/qcom/opensource
+BOARD_COMMON_DIR ?= device/qcom/common
+
 #path from build top to the core directory
 DATARMNET_CORE_PATH := datarmnet/core
-RMNET_CORE_PATH := vendor/qcom/opensource/$(DATARMNET_CORE_PATH)
-DLKM_DIR := $(TOP)/device/qcom/common/dlkm
+RMNET_CORE_PATH := $(BOARD_OPENSOURCE_DIR)/$(DATARMNET_CORE_PATH)
+DLKM_DIR := $(TOP)/$(BOARD_COMMON_DIR)/dlkm
 #absolute path to the build directory. Can't use $(TOP) here since
 #that resolves to ., and we pass this to Kbuild, where . is different
 RMNET_CORE_INC_DIR := $(abspath $(RMNET_CORE_PATH))
@@ -41,3 +45,4 @@ include $(DLKM_DIR)/Build_external_kernelmodule.mk
 endif #End of check for target
 endif #End of Check for qssi target
 endif #End of check for AUTO Target
+endif #End of Check for datarmnet

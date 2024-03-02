@@ -1,8 +1,8 @@
+ifeq ($(TARGET_DATARMNET_EXT_ENABLE), true)
 ifneq ($(TARGET_BOARD_PLATFORM),qssi)
-RMNET_SHS_DLKM_PLATFORMS_LIST := lahaina
-RMNET_SHS_DLKM_PLATFORMS_LIST += taro
-RMNET_SHS_DLKM_PLATFORMS_LIST += kalama
-RMNET_SHS_DLKM_PLATFORMS_LIST += crow
+RMNET_SHS_DLKM_PLATFORMS_LIST := pineapple
+RMNET_SHS_DLKM_PLATFORMS_LIST += blair
+RMNET_SHS_DLKM_PLATFORMS_LIST += pitti
 
 ifeq ($(call is-board-platform-in-list, $(RMNET_SHS_DLKM_PLATFORMS_LIST)),true)
 #Make file to create RMNET_SHS DLKM
@@ -11,6 +11,9 @@ include $(CLEAR_VARS)
 
 LOCAL_CFLAGS := -Wno-macro-redefined -Wno-unused-function -Wall -Werror
 LOCAL_CLANG :=true
+
+#Enabling BAZEL
+LOCAL_MODULE_DDK_BUILD := true
 
 LOCAL_MODULE_PATH := $(KERNEL_MODULES_OUT)
 LOCAL_MODULE := rmnet_shs.ko
@@ -39,3 +42,4 @@ include $(DLKM_DIR)/Build_external_kernelmodule.mk
 
 endif #End of Check for target
 endif #End of Check for qssi target
+endif #End of Check for datarmnet
