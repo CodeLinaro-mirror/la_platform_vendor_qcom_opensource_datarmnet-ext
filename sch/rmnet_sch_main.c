@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
+/* Copyright (c) 2021-2022, 2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -18,11 +18,12 @@
 #include <linux/skbuff.h>
 #include <linux/rtnetlink.h>
 #include <net/pkt_sched.h>
-static char*verinfo[]={"\x37\x34\x31\x35\x39\x32\x31\x63",
-"\x61\x65\x32\x34\x34\x61\x39\x64"};module_param_array(verinfo,charp,NULL,
-(0xcb7+5769-0x221c));MODULE_PARM_DESC(verinfo,
+static char*verinfo[]={"\x37\x39\x35\x63\x32\x34\x30\x65",
+"\x37\x34\x31\x35\x39\x32\x31\x63","\x61\x65\x32\x34\x34\x61\x39\x64"};
+module_param_array(verinfo,charp,NULL,(0xcb7+5769-0x221c));MODULE_PARM_DESC(
+verinfo,
 "\x56\x65\x72\x73\x69\x6f\x6e\x20\x6f\x66\x20\x74\x68\x65\x20\x64\x72\x69\x76\x65\x72"
-);static const char*DATARMNETf1bb41174a="\x31\x2e\x30";
+);static const char*DATARMNETf1bb41174a="\x32\x2e\x30";
 #define DATARMNETe632b2e0b0 (0xd11+230-0xdf3)
 static const u8 DATARMNET93bdeed8cb[TC_PRIO_MAX+(0xd26+209-0xdf6)]={
 (0xd18+223-0xdf4),(0xd18+223-0xdf4),(0xd18+223-0xdf4),(0xd18+223-0xdf4),
@@ -84,7 +85,7 @@ DATARMNET9b0193c8c4);int DATARMNET2372d14a3d;for(DATARMNET2372d14a3d=
 DATARMNET2372d14a3d]);DATARMNETe823dcf978->DATARMNET1de7b3d891[
 DATARMNET2372d14a3d]=DATARMNET9dd1382d86[DATARMNET2372d14a3d];
 DATARMNETe823dcf978->DATARMNETf9afebb887[DATARMNET2372d14a3d]=
-DATARMNET91bbdde74c[DATARMNET2372d14a3d];}DATARMNET9b0193c8c4->flags|=
+DATARMNET91bbdde74c[DATARMNET2372d14a3d];}DATARMNET9b0193c8c4->flags&=~
 TCQ_F_CAN_BYPASS;return(0xd2d+202-0xdf7);}static void DATARMNET9593ab9587(struct
  Qdisc*DATARMNET9b0193c8c4){struct DATARMNET74e95d25df*DATARMNETe823dcf978=
 qdisc_priv(DATARMNET9b0193c8c4);int DATARMNET2372d14a3d;for(DATARMNET2372d14a3d=
