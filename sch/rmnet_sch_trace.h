@@ -1,53 +1,69 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
-/* Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved. */
+/*
+ * Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+ */
 
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM rmnet_sch
+
 #undef TRACE_INCLUDE_PATH
 #define TRACE_INCLUDE_PATH ../../../../../datarmnet-ext/sch
+
 #undef TRACE_INCLUDE_FILE
 #define TRACE_INCLUDE_FILE rmnet_sch_trace
-#if !defined(DATARMNET72fb1930ac) || defined(TRACE_HEADER_MULTI_READ)
-#define DATARMNET72fb1930ac
-#include <linux/tracepoint.h>
-DECLARE_EVENT_CLASS(DATARMNETfad14ba7f8,TP_PROTO(u8 DATARMNET73532bb212,u8 
-DATARMNET270a59c2d3,u32 DATARMNETaf3367fc24,u32 DATARMNET8fa25763da,u64 
-DATARMNETb57a0c5804,u64 DATARMNETf5f7bcaef9,void*DATARMNET16d1fadef0,void*
-DATARMNETc158357baa),TP_ARGS(DATARMNET73532bb212,DATARMNET270a59c2d3,
-DATARMNETaf3367fc24,DATARMNET8fa25763da,DATARMNETb57a0c5804,DATARMNETf5f7bcaef9,
-DATARMNET16d1fadef0,DATARMNETc158357baa),TP_STRUCT__entry(__field(u8,
-DATARMNET73532bb212)__field(u8,DATARMNET270a59c2d3)__field(u32,
-DATARMNETaf3367fc24)__field(u32,DATARMNET8fa25763da)__field(u64,
-DATARMNETb57a0c5804)__field(u64,DATARMNETf5f7bcaef9)__field(void*,
-DATARMNET16d1fadef0)__field(void*,DATARMNETc158357baa)),TP_fast_assign(__entry->
-DATARMNET73532bb212=DATARMNET73532bb212;__entry->DATARMNET270a59c2d3=
-DATARMNET270a59c2d3;__entry->DATARMNETaf3367fc24=DATARMNETaf3367fc24;__entry->
-DATARMNET8fa25763da=DATARMNET8fa25763da;__entry->DATARMNETb57a0c5804=
-DATARMNETb57a0c5804;__entry->DATARMNETf5f7bcaef9=DATARMNETf5f7bcaef9;__entry->
-DATARMNET16d1fadef0=DATARMNET16d1fadef0;__entry->DATARMNETc158357baa=
-DATARMNETc158357baa;),TP_printk(
-"\x66\x75\x6e\x3a\x25\x75\x20\x65\x76\x3a\x25\x75\x20\x75\x31\x3a\x25\x75\x20\x75\x32\x3a\x25\x75\x20\x75\x6c\x31\x3a\x25\x6c\x6c\x75\x20\x75\x6c\x32\x3a\x25\x6c\x6c\x75\x20\x70\x31\x3a\x30\x78\x25\x70\x4b\x20\x70\x32\x3a\x30\x78\x25\x70\x4b"
-,__entry->DATARMNET73532bb212,__entry->DATARMNET270a59c2d3,__entry->
-DATARMNETaf3367fc24,__entry->DATARMNET8fa25763da,__entry->DATARMNETb57a0c5804,
-__entry->DATARMNETf5f7bcaef9,__entry->DATARMNET16d1fadef0,__entry->
-DATARMNETc158357baa))DEFINE_EVENT(DATARMNETfad14ba7f8,rmnet_sch_low,TP_PROTO(u8 
-DATARMNET73532bb212,u8 DATARMNET270a59c2d3,u32 DATARMNETaf3367fc24,u32 
-DATARMNET8fa25763da,u64 DATARMNETb57a0c5804,u64 DATARMNETf5f7bcaef9,void*
-DATARMNET16d1fadef0,void*DATARMNETc158357baa),TP_ARGS(DATARMNET73532bb212,
-DATARMNET270a59c2d3,DATARMNETaf3367fc24,DATARMNET8fa25763da,DATARMNETb57a0c5804,
-DATARMNETf5f7bcaef9,DATARMNET16d1fadef0,DATARMNETc158357baa));DEFINE_EVENT(
-DATARMNETfad14ba7f8,rmnet_sch_high,TP_PROTO(u8 DATARMNET73532bb212,u8 
-DATARMNET270a59c2d3,u32 DATARMNETaf3367fc24,u32 DATARMNET8fa25763da,u64 
-DATARMNETb57a0c5804,u64 DATARMNETf5f7bcaef9,void*DATARMNET16d1fadef0,void*
-DATARMNETc158357baa),TP_ARGS(DATARMNET73532bb212,DATARMNET270a59c2d3,
-DATARMNETaf3367fc24,DATARMNET8fa25763da,DATARMNETb57a0c5804,DATARMNETf5f7bcaef9,
-DATARMNET16d1fadef0,DATARMNETc158357baa));DEFINE_EVENT(DATARMNETfad14ba7f8,
-rmnet_sch_err,TP_PROTO(u8 DATARMNET73532bb212,u8 DATARMNET270a59c2d3,u32 
-DATARMNETaf3367fc24,u32 DATARMNET8fa25763da,u64 DATARMNETb57a0c5804,u64 
-DATARMNETf5f7bcaef9,void*DATARMNET16d1fadef0,void*DATARMNETc158357baa),TP_ARGS(
-DATARMNET73532bb212,DATARMNET270a59c2d3,DATARMNETaf3367fc24,DATARMNET8fa25763da,
-DATARMNETb57a0c5804,DATARMNETf5f7bcaef9,DATARMNET16d1fadef0,DATARMNETc158357baa)
-);
-#endif
-#include <trace/define_trace.h>
 
+#if !defined(__RMNET_SCH_TRACE_H__) || defined(TRACE_HEADER_MULTI_READ)
+#define __RMNET_SCH_TRACE_H__
+
+#include <linux/tracepoint.h>
+
+DECLARE_EVENT_CLASS(rmnet_sch_template,
+	 TP_PROTO(u8 func, u8 evt, u32 uint1, u32 uint2,
+		  u64 ulong1, u64 ulong2, void *ptr1, void *ptr2),
+	 TP_ARGS(func, evt, uint1, uint2, ulong1, ulong2, ptr1, ptr2),
+	 TP_STRUCT__entry(__field(u8, func)
+			  __field(u8, evt)
+			  __field(u32, uint1)
+			  __field(u32, uint2)
+			  __field(u64, ulong1)
+			  __field(u64, ulong2)
+			  __field(void *, ptr1)
+			  __field(void *, ptr2)
+	 ),
+	 TP_fast_assign(__entry->func = func;
+			__entry->evt = evt;
+			__entry->uint1 = uint1;
+			__entry->uint2 = uint2;
+			__entry->ulong1 = ulong1;
+			__entry->ulong2 = ulong2;
+			__entry->ptr1 = ptr1;
+			__entry->ptr2 = ptr2;
+	 ),
+TP_printk("fun:%u ev:%u u1:%u u2:%u ul1:%llu ul2:%llu p1:0x%pK p2:0x%pK",
+	  __entry->func, __entry->evt,
+	  __entry->uint1, __entry->uint2,
+	  __entry->ulong1, __entry->ulong2,
+	  __entry->ptr1, __entry->ptr2)
+)
+
+DEFINE_EVENT(rmnet_sch_template, rmnet_sch_low,
+	 TP_PROTO(u8 func, u8 evt, u32 uint1, u32 uint2,
+		  u64 ulong1, u64 ulong2, void *ptr1, void *ptr2),
+	 TP_ARGS(func, evt, uint1, uint2, ulong1, ulong2, ptr1, ptr2)
+);
+
+DEFINE_EVENT(rmnet_sch_template, rmnet_sch_high,
+	 TP_PROTO(u8 func, u8 evt, u32 uint1, u32 uint2,
+		  u64 ulong1, u64 ulong2, void *ptr1, void *ptr2),
+	 TP_ARGS(func, evt, uint1, uint2, ulong1, ulong2, ptr1, ptr2)
+);
+
+DEFINE_EVENT(rmnet_sch_template, rmnet_sch_err,
+	 TP_PROTO(u8 func, u8 evt, u32 uint1, u32 uint2,
+		  u64 ulong1, u64 ulong2, void *ptr1, void *ptr2),
+	 TP_ARGS(func, evt, uint1, uint2, ulong1, ulong2, ptr1, ptr2)
+);
+
+#endif
+
+#include <trace/define_trace.h>
