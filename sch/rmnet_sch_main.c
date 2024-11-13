@@ -16,14 +16,15 @@
 #include "rmnet_sch_trace.h"
 
 /* Insert newest first, last 4 bytes of the change id */
-static char *verinfo[] = {"16cd6d33",
+static char *verinfo[] = { "b10f2ea2",
+			  "16cd6d33",
 			  "795c240e",
 			  "7415921c",
 			  "ae244a9d"};
 module_param_array(verinfo, charp, NULL, 0444);
 MODULE_PARM_DESC(verinfo, "Version of the driver");
 
-static const char *rmnet_sch_version = "2.0";
+static const char *rmnet_sch_version = "2.1";
 
 #define RMNET_SCH_MAX_QUEUE 4
 
@@ -161,7 +162,6 @@ static int rmnet_sch_init(struct Qdisc *sch, struct nlattr *arg,
 	int qn;
 
 	for (qn = 0; qn < RMNET_SCH_MAX_QUEUE; qn++) {
-		qdisc_skb_head_init(&priv->queue[qn]);
 		priv->pkts_quota[qn] = pkts_limit[qn];
 		priv->bytes_quota[qn] = bytes_limit[qn];
 	}
@@ -179,7 +179,6 @@ static void rmnet_sch_reset(struct Qdisc *sch)
 
 	for (qn = 0; qn < RMNET_SCH_MAX_QUEUE; qn++) {
 		kfree_skb_list(priv->queue[qn].head);
-		qdisc_skb_head_init(&priv->queue[qn]);
 		priv->pkts_quota[qn] = pkts_limit[qn];
 		priv->bytes_quota[qn] = bytes_limit[qn];
 	}
