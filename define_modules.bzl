@@ -14,7 +14,7 @@ def define_modules(target, variant):
     mod_list = []
 
     ddk_module(
-        name = "{}_sch".format(kernel_build_variant),
+        name = "{}-defconfig_sch".format(kernel_build_variant),
         out = "rmnet_sch.ko",
         srcs = [
             "sch/rmnet_sch_main.c",
@@ -26,7 +26,7 @@ def define_modules(target, variant):
 	    ":rmnet_ext_headers",
         ],
     )
-    mod_list.append("{}_sch".format(kernel_build_variant))
+    mod_list.append("{}-defconfig_sch".format(kernel_build_variant))
 
     copy_to_dist_dir(
         name = "{}-defconfig_datarmnet-ext_dist".format(kernel_build_variant),
