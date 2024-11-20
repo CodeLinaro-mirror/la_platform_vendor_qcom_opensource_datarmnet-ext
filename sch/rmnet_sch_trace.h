@@ -7,7 +7,7 @@
 #define TRACE_SYSTEM rmnet_sch
 
 #undef TRACE_INCLUDE_PATH
-#define TRACE_INCLUDE_PATH ../../../../../datarmnet-ext/sch
+#define TRACE_INCLUDE_PATH ../sch
 
 #undef TRACE_INCLUDE_FILE
 #define TRACE_INCLUDE_FILE rmnet_sch_trace
