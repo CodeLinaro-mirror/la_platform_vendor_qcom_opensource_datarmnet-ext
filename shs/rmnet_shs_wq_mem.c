@@ -17,9 +17,9 @@ struct proc_dir_entry *shs_proc_dir;
 /* Fixed arrays to copy to userspace over netlink */
 struct rmnet_shs_shared_mem_block_s rmnet_shs_wq_global_struct;
 struct rmnet_shs_mmap_info *global_shared;
-#define global_flow rmnet_shs_wq_global_struct.flow_entries 
+#define global_flow rmnet_shs_wq_global_struct.flow_entries
 #define global_blk_hdr rmnet_shs_wq_global_struct.blk_hdr
-	
+
 static int rmnet_shs_mmap_global(struct file *filp, struct vm_area_struct *vma)
 {
 
@@ -148,7 +148,7 @@ void rmnet_shs_wq_mem_update_global(void)
 	global_blk_hdr.titanium_mask = 0x0;
 	global_blk_hdr.online_mask = rmnet_shs_get_online_mask();
 	global_blk_hdr.cur_time = ktime_get_clocktai_ns();
-	if (!rmnet_shs_cfg.port) {
+	if (rmnet_shs_cfg.port) {
 		global_blk_hdr.pb_marker_seq = rmnet_shs_cfg.port->stats.pb_marker_seq;
 	}
 
