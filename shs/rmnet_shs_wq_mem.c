@@ -54,7 +54,7 @@ static int rmnet_shs_open_global(struct inode *inode, struct file *filp)
 		if (!info)
 			goto fail;
 
-		info->data = (char *)__get_free_pages(GFP_KERNEL | __GFP_COMP, 4);
+		info->data = (char *)__get_free_pages(GFP_ATOMIC | __GFP_COMP, 4);
 		if (!info->data) {
 			kfree(info);
 			goto fail;
@@ -167,7 +167,9 @@ void rmnet_shs_wq_mem_update_global(void)
 		global_flow[idx].cpu_num = hnode->current_cpu;
 		global_flow[idx].mux_id = hnode->mux_id;
 		global_flow[idx].trans_proto = hnode->skb_tport_proto;
-		global_flow[idx].is_ll_flow = hnode->low_latency;
+		global_flow[idx].is_ll_flow = hnode->low_latency == RMNET_SHS_LOW_LATENCY_MATCH;
+		global_flow[idx].is_ll_true_flow = hnode->low_latency == RMNET_SHS_TRUE_LOW_LATENCY;
+		global_flow[idx].is_l4s_flow = hnode->node->l4s;
 		global_flow[idx].rx_skbs = hnode->rx_skb;
 		global_flow[idx].rx_bytes = hnode->rx_bytes;
 		global_flow[idx].hw_coal_bytes = hnode->hw_coal_bytes;

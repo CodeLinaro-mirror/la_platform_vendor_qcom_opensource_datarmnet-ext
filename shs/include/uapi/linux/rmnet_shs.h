@@ -47,9 +47,9 @@ struct __attribute__((__packed__ ))  rmnet_shs_flow_entry_s {
 
 	// Bitfield to store smaller info like ip family and other flags
 	__u8 ip_family:4;
-	__u8 is_ll_flow:1; // is low latency flow
-	__u8 reserved_0:1;
-	__u8 reserved_1:1;
+	__u8 is_ll_flow:1; // is SW low latency matched flow
+	__u8 is_l4s_flow:1; // seen packets marked with ECT(1)
+	__u8 is_ll_true_flow:1; // is using LL codepath, SW LL or HW LL
 	__u8 reserved_2:1;
 
 	// packet/byte counters and some other values
@@ -64,7 +64,7 @@ struct __attribute__((__packed__ )) rmnet_shs_block_hdr {
 	__u8 version; // struct version set to SHS_SHARED_MEM_BLOCK_STRUCT_VERSION
 
 	// Common fields
-	__s64 cur_time; // time at which values were queried
+	__u64 cur_time; // time at which values were queried
 	__u64 pb_marker_seq;
 	__u8 isolation_mask;
 	__u8 reserve_mask;
@@ -260,6 +260,16 @@ struct rmnet_shs_wq_flow_info {
 	__u8 timeout;
 	__u8 seq;
 	__u8 opcode;
+	union {
+		__be32 mask;
+		struct in6_addr v6_mask;
+	} dest_ip_addr_mask;
+	union {
+		__be32 mask;
+		struct in6_addr v6_mask;
+	} src_ip_addr_mask;
+	__u16 src_port_max;
+	__u16 dest_port_max;
 };
 
 /* Types of suggestions made by shs wq

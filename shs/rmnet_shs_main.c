@@ -1328,6 +1328,13 @@ static void rmnet_shs_chain_to_skb_list(struct sk_buff *skb,
 	node->skb_list.num_parked_skbs += 1;
 	rmnet_shs_cfg.num_pkts_parked  += 1;
 
+	/* Theoretically, this should be set on every packet in the L4S flow.
+	 * IN practice, who knows if that is true or not. In any case, once
+	 * we see it, we don't need to check again.
+	 */
+	if (!node->l4s)
+		node->l4s = rmnet_shs_is_skb_l4s(skb);
+
 	if (unlikely(pushflush))
 		rmnet_shs_flush_lock_table(0, RMNET_RX_CTXT);
 
@@ -1889,22 +1896,30 @@ int rmnet_shs_assign(struct sk_buff *skb, struct rmnet_shs_clnt_s *clnt_cfg)
 
 			is_match_found = 1;
 			is_shs_reqd = 1;
-			/* If flow is marked as a LL flow investigate if fastpath is nessecary */
-			/* If flow is not coming in LL irq path then this flow will be */
+			/* If flow is marked as a LL flow investigate i.e check if fastpath is nessecary */
+			/* If flow is not coming in LL irq path then this flow will be checked once*/
 			if (node_p->low_latency) {
-				if (node_p->low_latency == RMNET_SHS_LOW_LATENCY_CHECK) {
-						if (rmnet_shs_is_filter_match(skb)) {
-							node_p->low_latency = RMNET_SHS_LOW_LATENCY_MATCH;
-						} else {
-							node_p->low_latency = RMNET_SHS_NOT_LOW_LATENCY;
-						}
+				if (node_p->low_latency == RMNET_SHS_LOW_LATENCY_CHECK && rmnet_shs_is_filter_match(skb)) {
+					node_p->low_latency = RMNET_SHS_LOW_LATENCY_MATCH;
+				} else if (node_p->low_latency == RMNET_SHS_LOW_LATENCY_CHECK){
+					node_p->low_latency = RMNET_SHS_NOT_LOW_LATENCY;
 				}
-				spin_unlock_bh(&rmnet_shs_ht_splock);
-				/* Does not take coalescing so inaccurate but LL cares about speed */
-				node_p->num_skb += 1;
-				node_p->num_skb_bytes += skb->len;
-				rmnet_shs_ll_handler(skb, clnt_cfg);
-				return 0;
+
+				if (node_p->low_latency == RMNET_SHS_LOW_LATENCY_MATCH) {
+					spin_unlock_bh(&rmnet_shs_ht_splock);
+					/* Does not take coalescing so inaccurate but LL cares about speed */
+					if (skb_shinfo(skb)->gso_segs) {
+						node_p->num_skb += skb_shinfo(skb)->gso_segs;
+					} else {
+						node_p->num_skb += 1;
+					}
+					node_p->num_skb_bytes += skb->len;
+					node_p->num_coal_skb += 1;
+					node_p->hw_coal_bytes += RMNET_SKB_CB(skb)->coal_bytes;
+					node_p->hw_coal_bufsize += RMNET_SKB_CB(skb)->coal_bufsize;
+					rmnet_shs_ll_handler(skb, clnt_cfg);
+					return 0;
+				}
 			}
 
 			if (node_p->phy) {
@@ -2014,6 +2029,7 @@ int rmnet_shs_assign(struct sk_buff *skb, struct rmnet_shs_clnt_s *clnt_cfg)
 		INIT_LIST_HEAD(&node_p->node_id);
 		/* Set ip header / transport header / transport proto */
 		rmnet_shs_get_update_skb_hdr_info(skb, node_p);
+		node_p->l4s = rmnet_shs_is_skb_l4s(skb);
 
 		/* Workqueue utilizes some of the values from above
 		 * initializations . Therefore, we need to request
@@ -2056,6 +2072,15 @@ int rmnet_shs_assign(struct sk_buff *skb, struct rmnet_shs_clnt_s *clnt_cfg)
 		if (rmnet_shs_is_filter_match(skb)) {
 			node_p->low_latency = RMNET_SHS_LOW_LATENCY_MATCH;
 			spin_unlock_bh(&rmnet_shs_ht_splock);
+			if (skb_shinfo(skb)->gso_segs) {
+				node_p->num_skb += skb_shinfo(skb)->gso_segs;
+			} else {
+				node_p->num_skb += 1;
+			}
+			node_p->num_skb_bytes += skb->len;
+			node_p->num_coal_skb += 1;
+			node_p->hw_coal_bytes += RMNET_SKB_CB(skb)->coal_bytes;
+			node_p->hw_coal_bufsize += RMNET_SKB_CB(skb)->coal_bufsize;
 			rmnet_shs_ll_handler(skb, clnt_cfg);
 			return 0;
 		}

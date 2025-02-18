@@ -197,6 +197,7 @@ struct rmnet_shs_skbn_s {
 	u8 is_shs_enabled;
 	u8 low_latency;
 	u8 ll_flag;
+	u8 l4s;
 
 	/*Is SHS enabled for this flow*/
 	u8 mux_id;
@@ -214,6 +215,7 @@ enum rmnet_shs_low_latency_state_e {
 	RMNET_SHS_NOT_LOW_LATENCY,
 	RMNET_SHS_LOW_LATENCY_MATCH,
 	RMNET_SHS_LOW_LATENCY_CHECK,
+	RMNET_SHS_TRUE_LOW_LATENCY,
 	RMNET_SHS_LL_MAX_STATE
 };
 
