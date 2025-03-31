@@ -23,7 +23,7 @@ package(
 ddk_headers(
     name = "rmnet_mem_headers",
     hdrs = glob([
-        "*.h",
+        "include/uapi/linux/*.h",
     ]),
     includes = ["."],
 )
