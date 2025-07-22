@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2021-2022, 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.​
  */
 
 #include <linux/module.h>
@@ -16,7 +16,8 @@
 #include "rmnet_sch_trace.h"
 
 /* Insert newest first, last 4 bytes of the change id */
-static char *verinfo[] = { "b10f2ea2",
+static char *verinfo[] = { "39c6d763",
+			  "b10f2ea2",
 			  "16cd6d33",
 			  "795c240e",
 			  "7415921c",
@@ -24,7 +25,7 @@ static char *verinfo[] = { "b10f2ea2",
 module_param_array(verinfo, charp, NULL, 0444);
 MODULE_PARM_DESC(verinfo, "Version of the driver");
 
-static const char *rmnet_sch_version = "2.1";
+static const char *rmnet_sch_version = "2.2";
 
 #define RMNET_SCH_MAX_QUEUE 4
 
@@ -178,7 +179,7 @@ static void rmnet_sch_reset(struct Qdisc *sch)
 	int qn;
 
 	for (qn = 0; qn < RMNET_SCH_MAX_QUEUE; qn++) {
-		kfree_skb_list(priv->queue[qn].head);
+		__qdisc_reset_queue(&priv->queue[qn]);
 		priv->pkts_quota[qn] = pkts_limit[qn];
 		priv->bytes_quota[qn] = bytes_limit[qn];
 	}
