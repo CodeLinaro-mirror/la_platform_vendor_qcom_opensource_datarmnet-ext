@@ -22,12 +22,15 @@ define_mem("vienna", "perf")
 define_mem("lahaina", "consolidate")
 define_mem("lahaina", "perf")
 
+define_mem("bengal", "consolidate")
+define_mem("bengal", "perf")
+
 package(
 	default_visibility = [
 	"//visibility:public", ],
 )
 ddk_headers(
-    name = "rmnet_mem_headers",
+    name = "rmnet_mem_uapi_headers",
     hdrs = glob([
         "include/uapi/linux/*.h",
     ]),

@@ -6,13 +6,13 @@ def define_mem(target, variant):
     include_base = "../../../{}".format(native.package_name())
 
     deps_mem = select({
-        "//build/kernel/kleaf:socrepo_true": ["//soc-repo:all_headers"],
-        "//build/kernel/kleaf:socrepo_false": ["//msm-kernel:all_headers"],
+        "//build/qcom_build_extensions:qtisocrepo_true": ["//soc-repo:all_headers"],
+        "//build/qcom_build_extensions:qtisocrepo_false": ["//msm-kernel:all_headers"],
     })
 
     kernel_build = select({
-        "//build/kernel/kleaf:socrepo_true": "//soc-repo:{}_base_kernel".format(kernel_build_variant),
-        "//build/kernel/kleaf:socrepo_false": "//msm-kernel:{}".format(kernel_build_variant),
+        "//build/qcom_build_extensions:qtisocrepo_true": "//soc-repo:{}_base_kernel".format(kernel_build_variant),
+        "//build/qcom_build_extensions:qtisocrepo_false": "//msm-kernel:{}".format(kernel_build_variant),
     })
 
     ddk_module(
@@ -28,7 +28,7 @@ def define_mem(target, variant):
             "rmnet_mem_priv.h",
          ],
         kernel_build = kernel_build,
-        deps = deps_mem + [":rmnet_mem_headers"],
+        deps = deps_mem + [":rmnet_mem_uapi_headers"],
         copts = ["-Wno-misleading-indentation"]
     )
 
