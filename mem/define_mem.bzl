@@ -5,6 +5,12 @@ def define_mem(target, variant):
     kernel_build_variant = "{}_{}".format(target, variant)
     include_base = "../../../{}".format(native.package_name())
 
+    target_copts = []
+
+    # Enable C define only for selected target
+    if target == "malabar":
+        target_copts.append("-DRMNET_LOWMEM_TARGET")
+
     deps_mem = select({
         "//build/qcom_build_extensions:qtisocrepo_true": ["//soc-repo:all_headers"],
         "//build/qcom_build_extensions:qtisocrepo_false": ["//msm-kernel:all_headers"],
@@ -29,7 +35,7 @@ def define_mem(target, variant):
          ],
         kernel_build = kernel_build,
         deps = deps_mem + [":rmnet_mem_uapi_headers"],
-        copts = ["-Wno-misleading-indentation"]
+        copts = ["-Wno-misleading-indentation"] + target_copts,
     )
 
     copy_to_dist_dir(
