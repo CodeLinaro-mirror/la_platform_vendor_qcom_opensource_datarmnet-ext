@@ -16,12 +16,22 @@
 
 #define POOL_LEN 4
 
+#ifdef RMNET_LOWMEM_TARGET
+#define MAX_STATIC_POOL 1000
+#else
 #define MAX_STATIC_POOL 700
+#endif
 #define MAX_POOL_O3 675
 #define MAX_POOL_O2 224
 
 #define MID_POOL_O3 600
 #define MID_POOL_O2 190
+
+#define VT_MAX_POOL_O3 150
+#define VT_MAX_POOL_O2 800
+
+#define VT_MID_POOL_O3 100
+#define VT_MID_POOL_O2 675
 
 #define RAMP_DOWN_DELAY 3000
 #define PB_IND_DUR 105

@@ -16,11 +16,27 @@ MODULE_LICENSE("GPL v2");
 
 DEFINE_SPINLOCK(rmnet_mem_lock);
 
+unsigned int rmnet_mem_debug __read_mostly;
+module_param(rmnet_mem_debug, uint, 0644);
+MODULE_PARM_DESC(rmnet_mem_debug, "rmnet_mem debug status");
+
+#ifdef RMNET_LOWMEM_TARGET
+unsigned int rmnet_mem_pool_check_boundary __read_mostly = 40;
+#else
+unsigned int rmnet_mem_pool_check_boundary __read_mostly = 5;
+#endif
+module_param(rmnet_mem_pool_check_boundary, uint, 0644);
+MODULE_PARM_DESC(rmnet_mem_pool_check_boundary, "rmnet_mem pool check boundary");
+
 int rmnet_mem_id_gaveup[POOL_LEN];
 module_param_array(rmnet_mem_id_gaveup, int, NULL, 0444);
 MODULE_PARM_DESC(rmnet_mem_id_gaveup, "gaveup per id");
 
+#ifdef RMNET_LOWMEM_TARGET
+int max_pool_size[POOL_LEN] = { 0, 0, VT_MAX_POOL_O2, VT_MAX_POOL_O3};
+#else
 int max_pool_size[POOL_LEN] = { 0, 0, MAX_POOL_O2, MAX_POOL_O3};
+#endif
 module_param_array(max_pool_size, int, NULL, 0644);
 MODULE_PARM_DESC(max_pool_size, "Max Pool size per order");
 
@@ -56,7 +72,11 @@ unsigned int rmnet_mem_pb_ind_max[POOL_LEN];
 module_param_array(rmnet_mem_pb_ind_max, uint, NULL, 0644);
 MODULE_PARM_DESC(rmnet_mem_pb_ind_max, "Pool size vote that is active on PB ind");
 
+#ifdef RMNET_LOWMEM_TARGET
+unsigned target_pool_size[POOL_LEN] = { 0, 0, VT_MID_POOL_O2,VT_MID_POOL_O3};
+#else
 unsigned target_pool_size[POOL_LEN] = { 0, 0, MID_POOL_O2, MID_POOL_O3};
+#endif
 module_param_array(target_pool_size, uint, NULL, 0444);
 MODULE_PARM_DESC(target_pool_size, "Pool size wq will adjust to on run");
 
@@ -163,6 +183,37 @@ struct mem_info* rmnet_mem_add_page(struct page *page, u8 pageorder)
 	return mem_slot;
 }
 
+void rmnet_mem_check_all(void)
+{
+	struct mem_info *mem_info;
+	struct list_head *ptr = NULL, *next = NULL;
+	int i, j;
+	int free_stats[POOL_LEN] = {0, 0, 0, 0};
+	int first_free_page[POOL_LEN] = {0,0,0,0};
+
+	for (i = 0, j = 0; i < POOL_LEN; i++) {
+		list_for_each_safe(ptr, next, &rmnet_mem_pool[i]) {
+			mem_info = list_entry(ptr, struct mem_info, mem_head);
+			/* move free pages to end of stack and to free cache */
+			if (page_ref_count(mem_info->addr) == 1) {
+				if (!first_free_page[i])
+					first_free_page[i] = j;
+				free_stats[i]++;
+			}
+			j++;
+		}
+		/* Scale to have Percent of free*/
+		if (j != static_pool_size[i]) {
+			pr_info("Invalid static pool size %d i %d \n", j, static_pool_size[i]);
+			BUG_ON(1);
+		}
+		j = 0;
+
+	}
+	pr_info("free stat order 2: %d order 3: %d f2: %d f3:%d \n", free_stats[2], free_stats[3], first_free_page[2], first_free_page[3]);
+	pr_info("stat order 2: %d  order 3: %d \n", free_stats[2], free_stats[3]);
+}
+
 /* Freed by client so added back to pool */
 void rmnet_mem_free_all(void)
 {
@@ -216,12 +267,15 @@ struct page* rmnet_mem_get_pages_entry(gfp_t gfp_mask, unsigned int order, int *
 				}
 				list_rotate_left(&rmnet_mem_pool[j]);
 				i++;
-			} while (i <= 5);
+			} while (i <= rmnet_mem_pool_check_boundary);
 			if (page && pageorder) {
 				*pageorder = j;
 				break;
 			}
 			i = 0;
+		#ifdef RMNET_LOWMEM_TARGET
+			if ( id == IPA_ID )  break;
+		#endif /* RMNET_LOWMEM_TARGET */
 		}
 	}
 	if (static_pool_size[order] < max_pool_size[order] &&
