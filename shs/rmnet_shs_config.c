@@ -20,6 +20,10 @@
 #include "rmnet_shs_modules.h"
 #include "rmnet_module.h"
 
+#if (KERNEL_VERSION(6, 6, 0) <= LINUX_VERSION_CODE)
+#include <net/netdev_rx_queue.h>
+#endif
+
 static int rmnet_shs_dev_notify_cb(struct notifier_block *nb,
 				    unsigned long event, void *data);
 
@@ -70,6 +74,7 @@ static int rmnet_shs_dev_notify_cb(struct notifier_block *nb,
 	struct net_device *dev = netdev_notifier_info_to_dev(data);
 	struct rmnet_priv *priv;
 	struct rmnet_port *port;
+	struct rps_map *map;
 	int ret = 0;
 
 	if (!dev) {
@@ -134,6 +139,16 @@ static int rmnet_shs_dev_notify_cb(struct notifier_block *nb,
 
 		break;
 	case NETDEV_UP:
+
+		map = rcu_dereference(dev->_rx->rps_map);
+
+		pr_err("%s(%d) mmask:%x map:%x \n", __func__, __LINE__, rmnet_shs_cfg.map_mask, rmnet_shs_mask_from_map(map));
+		if (rmnet_shs_cfg.map_mask != rmnet_shs_mask_from_map(map)) {
+			rmnet_shs_cfg.map_mask = rmnet_shs_mask_from_map(map);
+			rmnet_shs_cfg.map_len = rmnet_shs_get_mask_len(rmnet_shs_cfg.map_mask);
+			pr_err("%s(%d) mmask:%x mlen:%x \n", __func__, __LINE__, rmnet_shs_cfg.map_mask, rmnet_shs_cfg.map_len);
+		}
+
 		if (!rmnet_shs_cfg.is_reg_dl_mrk_ind &&
 		    rmnet_shs_cfg.rmnet_shs_init_complete) {
 
