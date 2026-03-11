@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2023-2025 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) Qualcomm Technologies Inc. and/or its subsidiaries.
  */
 
 #ifndef _RMNET_MEM_PRIV_H_
@@ -23,6 +23,12 @@
 
 #define MID_POOL_O3 603
 #define MID_POOL_O2 190
+
+#define VT_MAX_POOL_O3 100
+#define VT_MAX_POOL_O2 800
+
+#define VT_MID_POOL_O3 100
+#define VT_MID_POOL_O2 675
 
 #define STATIC_F_O3 3
 #define OLD_MID_POOL_O3 600
