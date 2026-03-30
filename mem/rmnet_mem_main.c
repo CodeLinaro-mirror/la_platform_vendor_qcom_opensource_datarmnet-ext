@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2023-2025 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) Qualcomm Technologies Inc. and/or its subsidiaries.
  */
 
 
@@ -14,11 +14,31 @@ unsigned int rmnet_mem_debug __read_mostly;
 module_param(rmnet_mem_debug, uint, 0644);
 MODULE_PARM_DESC(rmnet_mem_debug, "rmnet_mem debug status");
 
+#ifdef RMNET_LOWMEM_TARGET
+unsigned int rmnet_mem_cache_add_boundary __read_mostly = 2;
+#else
+unsigned int rmnet_mem_cache_add_boundary __read_mostly = 3;
+#endif
+module_param(rmnet_mem_cache_add_boundary, uint, 0644);
+MODULE_PARM_DESC(rmnet_mem_cache_add_boundary, "rmnet_mem cache add boundary");
+
+#ifdef RMNET_LOWMEM_TARGET
+unsigned int rmnet_mem_pool_check_boundary __read_mostly = 40;
+#else
+unsigned int rmnet_mem_pool_check_boundary __read_mostly = 30;
+#endif
+module_param(rmnet_mem_pool_check_boundary, uint, 0644);
+MODULE_PARM_DESC(rmnet_mem_pool_check_boundary, "rmnet_mem pool check boundary");
+
 unsigned int rmnet_mem_pb_enable __read_mostly = 1;
 module_param(rmnet_mem_pb_enable, uint, 0644);
 MODULE_PARM_DESC(rmnet_mem_pb_enable, "rmnet_mem_pb_enable pb ind pool boosts");
 
+#ifdef RMNET_LOWMEM_TARGET
+int max_pool_size[POOL_LEN] = { 0, 0, VT_MAX_POOL_O2, VT_MAX_POOL_O3};
+#else
 int max_pool_size[POOL_LEN] = { 0, 0, MAX_POOL_O2, MAX_POOL_O3};
+#endif
 module_param_array(max_pool_size, int, NULL, 0644);
 MODULE_PARM_DESC(max_pool_size, "Max Pool size per order");
 
@@ -30,7 +50,11 @@ int static_pool_size[POOL_LEN];
 module_param_array(static_pool_size, int, NULL, 0444);
 MODULE_PARM_DESC(static_pool_size, "Pool size per order");
 
+#ifdef RMNET_LOWMEM_TARGET
+int target_pool_size[POOL_LEN] = { 0, 0, VT_MID_POOL_O2, VT_MID_POOL_O3};
+#else
 int target_pool_size[POOL_LEN] = { 0, 0, MID_POOL_O2, MID_POOL_O3};
+#endif
 module_param_array(target_pool_size, int, NULL, 0644);
 MODULE_PARM_DESC(target_pool_size, "Pool size wq will adjust to on run");
 
@@ -194,13 +218,17 @@ void rmnet_mem_check_all(void)
 	int i, j;
 	int free_stats[POOL_LEN] = {0, 0, 0, 0};
 	int cache_stats[POOL_LEN] = {0, 0, 0, 0};
+	int first_free_page[POOL_LEN] = {0,0,0,0};
 
 	for (i = 0, j = 0; i < POOL_LEN; i++) {
 		list_for_each_safe(ptr, next, &rmnet_mem_pool[i]) {
 			mem_info = list_entry(ptr, mem_info_s, mem_head);
 			/* move free pages to end of stack and to free cache */
-			if (page_ref_count(mem_info->addr) == 1)
+			if (page_ref_count(mem_info->addr) == 1) {
+				if (!first_free_page[i])
+					first_free_page[i] = j;
 				free_stats[i]++;
+			}
 
 			if (!list_empty(&mem_info->cache_head))
 				cache_stats[i]++;
@@ -220,7 +248,7 @@ void rmnet_mem_check_all(void)
 		j = 0;
 
 	}
-	pr_info("free stat order 2: %d  order 3: %d", free_stats[2], free_stats[3]);
+	pr_info("free stat order 2: %d order 3: %d f2: %d f3:%d", free_stats[2], free_stats[3], first_free_page[2], first_free_page[3]);
 	pr_info("cache status count order 2: %d  order 3: %d", cache_stats[2], cache_stats[3]);
 	pr_info("static count order 2: %d  order 3: %d", static_pool_size[2], static_pool_size[3]);
 }
@@ -288,7 +316,7 @@ void rmnet_mem_cache_add(unsigned int order, bool force)
 				rmnet_mem_cache_adds[order]++;
 			}
 			/* Stop if gone through half of pool or cache has grown past half */
-			if (i++ > (static_pool_size[order] >> 3) ||
+			if (i++ > (static_pool_size[order] >> rmnet_mem_cache_add_boundary) ||
 			    (cache_pool_size[order] > (static_pool_size[order] >> 3))) {
 				break;
 			}
@@ -364,12 +392,15 @@ struct page *rmnet_mem_get_pages_entry(gfp_t gfp_mask, unsigned int order, int *
 			}
 			list_rotate_left(&rmnet_mem_pool[j]);
 			i++;
-		} while (i <= 30);
+		} while (i <= rmnet_mem_pool_check_boundary);
 		if (page && pageorder) {
 			*pageorder = j;
 			break;
 		}
 		i = 0;
+#ifdef RMNET_LOWMEM_TARGET
+		if ( id == IPA_ID )  break;
+#endif /* RMNET_LOWMEM_TARGET */
 	}
 
 	if (static_pool_size[order] < max_pool_size[order] &&
@@ -386,6 +417,9 @@ struct page *rmnet_mem_get_pages_entry(gfp_t gfp_mask, unsigned int order, int *
 		 * will fail too so that is akin to retry. So just hardcode to not retry for o3 page req
 		 */
 		if (order < 3) {
+			if (rmnet_mem_debug)
+				rmnet_mem_check_all();
+
 			page = __dev_alloc_pages((adding) ? default_mask : gfp_mask, order);
 
 			if (page) {
