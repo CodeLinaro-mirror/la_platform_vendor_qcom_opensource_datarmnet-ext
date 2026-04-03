@@ -142,8 +142,8 @@ static int rmnet_shs_dev_notify_cb(struct notifier_block *nb,
 
 		map = rcu_dereference(dev->_rx->rps_map);
 
-		pr_err("%s(%d) mmask:%x map:%x \n", __func__, __LINE__, rmnet_shs_cfg.map_mask, rmnet_shs_mask_from_map(map));
-		if (rmnet_shs_cfg.map_mask != rmnet_shs_mask_from_map(map)) {
+		pr_err("%s(%d) mmask:%x map:%x \n", __func__, __LINE__, rmnet_shs_cfg.map_mask, map ? rmnet_shs_mask_from_map(map): 0x0);
+		if (map != NULL && rmnet_shs_cfg.map_mask != rmnet_shs_mask_from_map(map)) {
 			rmnet_shs_cfg.map_mask = rmnet_shs_mask_from_map(map);
 			rmnet_shs_cfg.map_len = rmnet_shs_get_mask_len(rmnet_shs_cfg.map_mask);
 			pr_err("%s(%d) mmask:%x mlen:%x \n", __func__, __LINE__, rmnet_shs_cfg.map_mask, rmnet_shs_cfg.map_len);
