@@ -14,6 +14,7 @@ enum {
 	RMNET_MEM_CMD_UPDATE_MODE,
 	RMNET_MEM_CMD_UPDATE_POOL_SIZE,
 	RMNET_MEM_CMD_UPDATE_PEAK_POOL_SIZE,
+	RMNET_MEM_CMD_SET_LOWMEM_MODE,
 	__RMNET_MEM_GENL_CMD_MAX,
 };
 
@@ -22,8 +23,9 @@ enum {
 uint32_t rmnet_shs_genl_seqnum;
 
 static struct nla_policy rmnet_mem_nl_policy[RMNET_MEM_ATTR_MAX + 1] = {
-    [RMNET_MEM_ATTR_MODE]  = NLA_POLICY_EXACT_LEN(sizeof(struct rmnet_memzone_req)),
-    [RMNET_MEM_ATTR_POOL_SIZE]  = NLA_POLICY_EXACT_LEN(sizeof(struct rmnet_pool_update_req)),
+    [RMNET_MEM_ATTR_MODE]	  =		NLA_POLICY_EXACT_LEN(sizeof(struct rmnet_memzone_req)),
+    [RMNET_MEM_ATTR_POOL_SIZE] 	  = 		NLA_POLICY_EXACT_LEN(sizeof(struct rmnet_pool_update_req)),
+    [RMNET_MEM_ATTR_LOWMEM_MODE]  =           	NLA_POLICY_EXACT_LEN(sizeof(uint32_t)),
 };
 
 static const struct genl_ops rmnet_mem_nl_ops[] = {
@@ -43,6 +45,11 @@ static const struct genl_ops rmnet_mem_nl_ops[] = {
 		 */
 		.cmd = RMNET_MEM_CMD_UPDATE_PEAK_POOL_SIZE,
 		.doit = rmnet_mem_nl_cmd_peak_pool_size,
+	},
+	{
+		/* Set low memory target mode */
+		.cmd = RMNET_MEM_CMD_SET_LOWMEM_MODE,
+		.doit = rmnet_mem_nl_cmd_set_lowmem_mode,
 	},
 };
 

@@ -16,11 +16,9 @@
 
 #define POOL_LEN 4
 
-#ifdef RMNET_LOWMEM_TARGET
-#define MAX_STATIC_POOL 1000
-#else
 #define MAX_STATIC_POOL 700
-#endif
+#define VT_MAX_STATIC_POOL 1000
+
 #define MAX_POOL_O3 675
 #define MAX_POOL_O2 224
 
@@ -32,6 +30,9 @@
 
 #define VT_MID_POOL_O3 100
 #define VT_MID_POOL_O2 675
+
+#define VT_POOL_CHECK_BOUNDARY 40
+#define POOL_CHECK_BOUNDARY 5
 
 #define RAMP_DOWN_DELAY 3000
 #define PB_IND_DUR 105
@@ -68,5 +69,8 @@ extern int rmnet_mem_id_recycled[POOL_LEN];
 extern unsigned int target_pool_size[POOL_LEN];
 extern unsigned int rmnet_mem_pb_ind_max[POOL_LEN];
 extern int rmnet_mem_stats[RMNET_MEM_STAT_MAX];
+extern unsigned int rmnet_mem_pool_check_boundary;
+extern int rmnet_lowmem_target_enabled;
+extern unsigned int rmnet_max_static_pool_size;
 
 #endif
