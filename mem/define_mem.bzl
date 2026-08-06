@@ -7,10 +7,6 @@ def define_mem(target, variant):
 
     target_copts = []
 
-    # Enable C define only for selected target
-    if target == "malabar":
-        target_copts.append("-DRMNET_LOWMEM_TARGET")
-
     deps_mem = select({
         "//build/qcom_build_extensions:qtisocrepo_true": ["//soc-repo:all_headers"],
         "//build/qcom_build_extensions:qtisocrepo_false": ["//msm-kernel:all_headers"],
