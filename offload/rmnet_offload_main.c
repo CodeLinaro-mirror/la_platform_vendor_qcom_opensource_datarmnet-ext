@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022-2025 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
  */
 
 /* rmnet_offload main handlers and helpers */
@@ -246,6 +246,11 @@ static bool rmnet_offload_dissect_pkt(struct rmnet_frag_descriptor *frag_desc,
 		if (!iph)
 			goto done;
 
+		/* Make sure the header length is sane */
+		if (iph->roip_ihl * 4 < sizeof(*iph) ||
+		    iph->roip_ihl * 4 > pkt_len)
+			goto done;
+
 		pkt_hdr->roh_ip_len = iph->roip_ihl * 4;
 		pkt_hdr->roh_trans_proto = iph->roip_protocol;
 		pkt_hdr->roh_saddr4 = iph->roip_saddr;
@@ -327,6 +332,11 @@ static bool rmnet_offload_dissect_pkt(struct rmnet_frag_descriptor *frag_desc,
 		tp = rmnet_frag_header_ptr(frag_desc, pkt_hdr->roh_ip_len,
 					   sizeof(*tp), &__tp);
 		if (!tp)
+			goto done;
+
+		/* Make sure the header length is sane */
+		if (tp->rotcp_doff * 4 < sizeof(*tp) ||
+		    tp->rotcp_doff * 4 + pkt_hdr->roh_ip_len > pkt_len)
 			goto done;
 
 		pkt_hdr->roh_trans_len = tp->rotcp_doff * 4;
