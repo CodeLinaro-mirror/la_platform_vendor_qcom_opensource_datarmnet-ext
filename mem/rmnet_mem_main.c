@@ -20,11 +20,7 @@ unsigned int rmnet_mem_debug __read_mostly;
 module_param(rmnet_mem_debug, uint, 0644);
 MODULE_PARM_DESC(rmnet_mem_debug, "rmnet_mem debug status");
 
-#ifdef RMNET_LOWMEM_TARGET
-unsigned int rmnet_mem_pool_check_boundary __read_mostly = 40;
-#else
 unsigned int rmnet_mem_pool_check_boundary __read_mostly = 5;
-#endif
 module_param(rmnet_mem_pool_check_boundary, uint, 0644);
 MODULE_PARM_DESC(rmnet_mem_pool_check_boundary, "rmnet_mem pool check boundary");
 
@@ -32,11 +28,7 @@ int rmnet_mem_id_gaveup[POOL_LEN];
 module_param_array(rmnet_mem_id_gaveup, int, NULL, 0444);
 MODULE_PARM_DESC(rmnet_mem_id_gaveup, "gaveup per id");
 
-#ifdef RMNET_LOWMEM_TARGET
-int max_pool_size[POOL_LEN] = { 0, 0, VT_MAX_POOL_O2, VT_MAX_POOL_O3};
-#else
 int max_pool_size[POOL_LEN] = { 0, 0, MAX_POOL_O2, MAX_POOL_O3};
-#endif
 module_param_array(max_pool_size, int, NULL, 0644);
 MODULE_PARM_DESC(max_pool_size, "Max Pool size per order");
 
@@ -72,13 +64,13 @@ unsigned int rmnet_mem_pb_ind_max[POOL_LEN];
 module_param_array(rmnet_mem_pb_ind_max, uint, NULL, 0644);
 MODULE_PARM_DESC(rmnet_mem_pb_ind_max, "Pool size vote that is active on PB ind");
 
-#ifdef RMNET_LOWMEM_TARGET
-unsigned target_pool_size[POOL_LEN] = { 0, 0, VT_MID_POOL_O2,VT_MID_POOL_O3};
-#else
 unsigned target_pool_size[POOL_LEN] = { 0, 0, MID_POOL_O2, MID_POOL_O3};
-#endif
 module_param_array(target_pool_size, uint, NULL, 0444);
 MODULE_PARM_DESC(target_pool_size, "Pool size wq will adjust to on run");
+
+int rmnet_lowmem_target_enabled __read_mostly = 0;
+module_param(rmnet_lowmem_target_enabled, int, 0644);
+MODULE_PARM_DESC(rmnet_lowmem_target_enabled, "Low memory target mode enabled");
 
 static char *verinfo[] = {"2003bae3"};
 module_param_array(verinfo, charp, NULL, 0444);
@@ -87,6 +79,7 @@ MODULE_PARM_DESC(verinfo, "Version of the driver");
 struct workqueue_struct *mem_wq;
 struct delayed_work pool_adjust_work;
 int pb_ind_pending;
+unsigned int rmnet_max_static_pool_size = MAX_STATIC_POOL;
 struct  hrtimer pb_timer;
 
 struct list_head rmnet_mem_pool[POOL_LEN];
@@ -273,9 +266,8 @@ struct page* rmnet_mem_get_pages_entry(gfp_t gfp_mask, unsigned int order, int *
 				break;
 			}
 			i = 0;
-		#ifdef RMNET_LOWMEM_TARGET
-			if ( id == IPA_ID )  break;
-		#endif /* RMNET_LOWMEM_TARGET */
+			if (rmnet_lowmem_target_enabled && id == IPA_ID)
+				break;
 		}
 	}
 	if (static_pool_size[order] < max_pool_size[order] &&
@@ -375,7 +367,7 @@ void rmnet_mem_adjust(unsigned perm_size, u8 pageorder)
 	int adjustment;
 	unsigned long flags;
 
-	if (pageorder >= POOL_LEN || perm_size > MAX_STATIC_POOL) {
+	if (pageorder >= POOL_LEN || perm_size > rmnet_max_static_pool_size) {
 		rmnet_mem_err[ERR_INV_ARGS]++;
 		return;
 	}

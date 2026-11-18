@@ -13,6 +13,7 @@ enum {
 	RMNET_MEM_ATTR_MODE,
 	RMNET_MEM_ATTR_POOL_SIZE,
 	RMNET_MEM_ATTR_INT,
+	RMNET_MEM_ATTR_LOWMEM_MODE,
 	__RMNET_MEM_ATTR_MAX,
 };
 
@@ -30,6 +31,7 @@ void rmnet_mem_nl_unregister(void);
 int rmnet_mem_nl_cmd_update_mode(struct sk_buff *skb, struct genl_info *info);
 int rmnet_mem_nl_cmd_update_pool_size(struct sk_buff *skb, struct genl_info *info);
 int rmnet_mem_nl_cmd_peak_pool_size(struct sk_buff *skb, struct genl_info *info);
+int rmnet_mem_nl_cmd_set_lowmem_mode(struct sk_buff *skb, struct genl_info *info);
 int rmnet_mem_genl_send_int_to_userspace_no_info(int val, struct genl_info *info);
 
 #endif /* _RMNET_MEM_GENL_H_ */

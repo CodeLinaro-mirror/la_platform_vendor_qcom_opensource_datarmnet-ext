@@ -56,7 +56,7 @@ int rmnet_mem_nl_cmd_update_pool_size(struct sk_buff *skb, struct genl_info *inf
 		for (i = 0; i < POOL_LEN; i++) {
 			if (mem_info.valid_mask & 1 << i &&
 			    mem_info.poolsize[i] > 0 &&
-			    mem_info.poolsize[i] <= MAX_STATIC_POOL) {
+			    mem_info.poolsize[i] <= rmnet_max_static_pool_size) {
 				/* Sets next adjust work trigger to alloc new target memory.
 				 * Updates grow cap for new pages we alloc.
 				 */
@@ -104,7 +104,7 @@ int rmnet_mem_nl_cmd_peak_pool_size(struct sk_buff *skb, struct genl_info *info)
 
 		for (i = 0; i < POOL_LEN; i++) {
 			if (mem_info.valid_mask & 1 << i) {
-				if (mem_info.poolsize[i] > 0 && mem_info.poolsize[i] <= MAX_STATIC_POOL)
+				if (mem_info.poolsize[i] > 0 && mem_info.poolsize[i] <= rmnet_max_static_pool_size)
 					rmnet_mem_pb_ind_max[i] = mem_info.poolsize[i];
 			}
 		}
@@ -114,5 +114,42 @@ int rmnet_mem_nl_cmd_peak_pool_size(struct sk_buff *skb, struct genl_info *info)
 		rmnet_mem_genl_send_int_to_userspace_no_info(RMNET_MEM_NL_FAIL, info);
 	}
 
+	return 0;
+}
+
+int rmnet_mem_nl_cmd_set_lowmem_mode(struct sk_buff *skb, struct genl_info *info)
+{
+	uint32_t lowmem_mode;
+
+	if (!info->attrs[RMNET_MEM_ATTR_LOWMEM_MODE]) {
+		rm_err("RMNET_MEM: %s() - missing LOWMEM_MODE attribute\n", __func__);
+		rmnet_mem_genl_send_int_to_userspace_no_info(RMNET_MEM_NL_FAIL, info);
+		return 0;
+	}
+
+	lowmem_mode = nla_get_u32(info->attrs[RMNET_MEM_ATTR_LOWMEM_MODE]);
+
+	if (rmnet_lowmem_target_enabled) {
+		/* Already set once; toggling is not supported */
+		rm_err("RMNET_MEM: %s() - lowmem mode already set, ignoring request\n", __func__);
+		rmnet_mem_genl_send_int_to_userspace_no_info(RMNET_MEM_NL_SUCCESS, info);
+		return 0;
+	}
+
+	/* Update the global flag */
+	rmnet_lowmem_target_enabled = lowmem_mode ? 1 : 0;
+
+	if (rmnet_lowmem_target_enabled) {
+		rmnet_mem_pool_check_boundary = VT_POOL_CHECK_BOUNDARY;
+		rmnet_max_static_pool_size = VT_MAX_STATIC_POOL;
+		rm_err("RMNET_MEM: LOW MEMORY MODE ENABLED - pool_boundary=%u max_static_pool=%u\n",
+			rmnet_mem_pool_check_boundary, rmnet_max_static_pool_size);
+	} else {
+		rmnet_max_static_pool_size = MAX_STATIC_POOL;
+		rm_err("RMNET_MEM: NORMAL MODE - pool_boundary=%u max_static_pool=%u\n",
+			rmnet_mem_pool_check_boundary, rmnet_max_static_pool_size);
+	}
+
+	rmnet_mem_genl_send_int_to_userspace_no_info(RMNET_MEM_NL_SUCCESS, info);
 	return 0;
 }

@@ -7,10 +7,6 @@ def define_mem(target, variant):
 
     target_copts = []
 
-    # Enable C define only for selected target
-    if target == "parrot":
-        target_copts.append("-DRMNET_LOWMEM_TARGET")
-
     ddk_module(
         name = "{}_rmnet_mem".format(kernel_build_variant),
         out = "rmnet_mem.ko",
